@@ -18,5 +18,10 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
+
+        // Seed E2E test data for absences
+        $this->call([
+            E2EAbsenceSeeder::class,
+        ]);
     }
 }

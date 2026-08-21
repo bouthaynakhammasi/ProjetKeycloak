@@ -6,8 +6,8 @@
 /storage/*.key
 /vendor
 .env
-.env.backup
-.env.production
+.env.*
+!.env.example
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
@@ -17,3 +17,16 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# Testing
+/test-results/
+/playwright-report/
+/database_test.sqlite
+debug-*.png
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp

@@ -1,0 +1,62 @@
+# Laravel - Both applications
+**/.env
+**/.env.*
+!**/.env.example
+
+**/vendor/
+**/node_modules/
+
+**/storage/logs/
+**/storage/framework/cache/
+**/storage/framework/sessions/
+**/storage/framework/views/
+**/storage/framework/*.key
+**/storage/*.key
+
+**/public/build/
+**/public/hot/
+**/public/storage/
+
+**/public/assets/
+**/public/bootstrap-creative/
+**/public/css/
+**/public/js/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+/.fleet
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log
+yarn-error.log
+
+# PHPUnit
+.phpunit.cache
+.phpunit.result.cache
+**/.phpunit.cache
+
+# Testing
+**/test-results/
+**/playwright-report/
+**/database_test.sqlite
+
+# Temporary files
+*.tmp
+*.temp
+*.png
+debug-*.png
+
+# Git and GitHub
+.github/
+
+# Misc
+Homestead.json
+Homestead.yaml
+auth.json

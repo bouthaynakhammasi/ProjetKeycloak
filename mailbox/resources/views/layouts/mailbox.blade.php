@@ -193,11 +193,6 @@
             </form>
 
             <div class="flex items-center gap-3 ml-auto shrink-0">
-                {{-- Badge SSO actif --}}
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium" title="Session Keycloak active">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    SSO actif
-                </span>
 
                 {{-- Avatar utilisateur --}}
                 @php
@@ -228,8 +223,30 @@
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="mx-5 mt-3 px-4 py-2.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm animate-fade-in flex items-center gap-2">
+                <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+                {{ session('error') }}
+            </div>
+        @endif
+
         {{-- Contenu principal --}}
         <main class="flex-1 overflow-y-auto">
+            {{-- Messages flash (succès/erreurs) --}}
+            @if (session('success'))
+                <div class="mx-5 mt-5 bg-green-50 border border-green-200 text-green-700 rounded-lg p-4">
+                    <div class="text-sm">{{ session('success') }}</div>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="mx-5 mt-5 bg-red-50 border border-red-200 text-red-700 rounded-lg p-4">
+                    <div class="text-sm">{{ session('error') }}</div>
+                </div>
+            @endif
+
             @yield('content')
         </main>
     </div>
@@ -262,6 +279,25 @@
                 </div>
             </div>
 
+            {{-- Messages d'erreur --}}
+            @if ($errors->any())
+                <div class="mx-5 mt-3 bg-red-50 border border-red-200 text-red-700 rounded-lg p-4">
+                    <div class="font-medium text-sm mb-2">Erreurs de validation :</div>
+                    <ul class="text-sm list-disc list-inside">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            {{-- Message de succès --}}
+            @if (session('success'))
+                <div class="mx-5 mt-3 bg-green-50 border border-green-200 text-green-700 rounded-lg p-4">
+                    <div class="text-sm">{{ session('success') }}</div>
+                </div>
+            @endif
+
             {{-- Formulaire --}}
             <form
                 method="POST"
@@ -281,6 +317,19 @@
                     <div class="px-5 py-2.5 flex items-center gap-3">
                         <span class="text-xs text-gray-400 w-6 shrink-0">De</span>
                         <span class="text-sm text-gray-700">{{ $kUser['name'] ?? ($kUser['preferred_username'] ?? 'Utilisateur') }}</span>
+                    </div>
+
+                    {{-- À (destinataire) --}}
+                    <div class="px-5 py-2.5 flex items-center gap-3">
+                        <label for="compose-recipient" class="text-xs text-gray-400 w-6 shrink-0">À</label>
+                        <input
+                            type="email"
+                            name="recipient_email"
+                            id="compose-recipient"
+                            required
+                            placeholder="destinataire@exemple.com"
+                            class="flex-1 text-sm text-gray-800 bg-transparent border-none outline-none placeholder-gray-300"
+                        >
                     </div>
 
                     {{-- Objet --}}
@@ -349,15 +398,34 @@
 </div>
 
 <script>
-    function openComposeModal() {
+    function openComposeModal(recipientEmail = null) {
         const modal = document.getElementById('compose-modal');
         modal.classList.remove('hidden');
+
+        // Pré-remplir l'email du destinataire si fourni (mode réponse)
+        if (recipientEmail) {
+            const input = document.getElementById('compose-recipient');
+            input.value = recipientEmail;
+            input.readOnly = true; // Utiliser readonly au lieu de disabled
+            input.classList.add('bg-gray-50', 'cursor-not-allowed');
+        } else {
+            const input = document.getElementById('compose-recipient');
+            input.readOnly = false;
+            input.classList.remove('bg-gray-50', 'cursor-not-allowed');
+        }
+
         setTimeout(() => document.getElementById('compose-subject')?.focus(), 80);
     }
 
     function closeComposeModal() {
         document.getElementById('compose-modal').classList.add('hidden');
         document.getElementById('compose-form').reset();
+        // Réactiver l'input destinataire
+        const input = document.getElementById('compose-recipient');
+        if (input) {
+            input.readOnly = false;
+            input.classList.remove('bg-gray-50', 'cursor-not-allowed');
+        }
     }
 
     // Fermer avec Escape
@@ -365,9 +433,9 @@
         if (e.key === 'Escape') closeComposeModal();
     });
 
-    // Ouvrir automatiquement si on revient d'une page /mailbox/compose
-    @if(Request::routeIs('mailbox.compose'))
-        document.addEventListener('DOMContentLoaded', openComposeModal);
+    // Ouvrir automatiquement si on revient d'une page /mailbox/compose ou /mailbox/{id}/reply
+    @if(Request::routeIs('mailbox.compose') || Request::routeIs('mailbox.reply'))
+        document.addEventListener('DOMContentLoaded', () => openComposeModal());
     @endif
 </script>
 

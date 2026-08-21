@@ -100,9 +100,8 @@
 
         {{-- Pied du message --}}
         <footer class="px-6 py-4 border-t border-gray-100 flex items-center gap-3">
-            <button
-                type="button"
-                onclick="openComposeModal()"
+            <a
+                href="{{ route('mailbox.reply', $message->id) }}"
                 class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-accent-50 text-accent-700 text-sm font-medium hover:bg-accent-100 transition-colors"
                 id="reply-btn"
             >
@@ -110,7 +109,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
                 </svg>
                 Répondre
-            </button>
+            </a>
 
             <a
                 href="{{ route('mailbox.index', ['folder' => $message->folder]) }}"

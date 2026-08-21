@@ -11,7 +11,10 @@ class Message extends Model
     use HasFactory;
 
     protected $fillable = [
+        'sender_id',
         'keycloak_user_id',
+        'recipient_id',
+        'recipient_email',
         'sender_name',
         'sender_email',
         'subject',

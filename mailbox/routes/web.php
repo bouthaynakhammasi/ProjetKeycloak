@@ -15,13 +15,25 @@ Route::get('/auth/redirect', [KeycloakController::class, 'redirect'])->name('key
 Route::get('/auth/callback', [KeycloakController::class, 'callback'])->name('keycloak.callback');
 Route::post('/auth/logout',  [KeycloakController::class, 'logout'])->name('keycloak.logout');
 
-// ─── Page d'accueil → redirige vers la boîte mail ─────────────────────────────
-Route::get('/', function () {
+// ─── Route /login pour correspondre à la config Keycloak ───────────────────────
+Route::get('/login', function () {
     if (session()->has('keycloak_user')) {
+        // Si l'utilisateur est déjà authentifié, rediriger vers la mailbox
         return redirect()->route('mailbox.index');
     }
+    // Sinon, rediriger vers Keycloak pour authentification
     return redirect()->route('keycloak.redirect');
-});
+})->name('login');
+
+// ─── Page d'accueil publique (landing page) ───────────────────────────────────
+Route::get('/', function () {
+    if (session()->has('keycloak_user')) {
+        // Si l'utilisateur est déjà authentifié, rediriger vers la mailbox
+        return redirect()->route('mailbox.index');
+    }
+    // Sinon, afficher la landing page
+    return view('landing');
+})->name('landing');
 
 // ─── Application Mailbox (protégée par SSO) ───────────────────────────────────
 Route::middleware('keycloak.auth')->group(function () {
@@ -36,6 +48,11 @@ Route::middleware('keycloak.auth')->group(function () {
 
     // Composer un nouveau message
     Route::get('/mailbox/compose', [MailboxController::class, 'compose'])->name('mailbox.compose');
+
+    // Répondre à un message
+    Route::get('/mailbox/{id}/reply', [MailboxController::class, 'compose'])
+        ->where('id', '[0-9]+')
+        ->name('mailbox.reply');
 
     // Enregistrer un message (envoi ou brouillon)
     Route::post('/mailbox', [MailboxController::class, 'store'])->name('mailbox.store');

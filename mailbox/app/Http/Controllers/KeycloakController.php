@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\KeycloakTokenValidator;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Http\Request;
 
@@ -23,15 +24,24 @@ class KeycloakController extends Controller
         try {
             $user = Socialite::driver('keycloak')->user();
 
+            $roles = data_get($user->user, 'realm_access.roles', []);
+            $primaryRole = is_array($roles) && count($roles) ? $roles[0] : null;
+
+            // Stocker l'ID Token pour la validation de session
+            $idToken = $user->accessTokenResponseBody['id_token'] ?? null;
+
             session([
                 'keycloak_user' => [
-                    'sub'            => $user->getId(),
-                    'name'           => $user->getName(),
-                    'email'          => $user->getEmail(),
-                    'nickname'       => $user->getNickname(),
-                    'preferred_username' => $user->getNickname(),
-                    'token'          => $user->token,
-                    'refresh_token'  => $user->refreshToken,
+                    'sub'               => $user->getId(),
+                    'name'              => $user->getName(),
+                    'email'             => $user->getEmail(),
+                    'nickname'          => $user->getNickname(),
+                    'preferred_username'=> $user->getNickname(),
+                    'token'             => $user->token,
+                    'refresh_token'     => $user->refreshToken,
+                    'id_token'          => $idToken,
+                    'roles'             => $roles,
+                    'role'              => $primaryRole,
                 ],
             ]);
 
@@ -43,23 +53,26 @@ class KeycloakController extends Controller
     }
 
     /**
-     * Déconnecte l'utilisateur de l'application et de Keycloak (SSO logout).
+     * Déconnecte l'utilisateur de l'application.
+     * Simplifié : déconnexion locale sans appel à l'endpoint Keycloak complexe.
      */
     public function logout(Request $request)
     {
+        // Invalider le cache du token si disponible
         $keycloakUser = session('keycloak_user');
+        $idToken = $keycloakUser['id_token'] ?? null;
+        
+        if ($idToken) {
+            $validator = app(KeycloakTokenValidator::class);
+            $validator->invalidateTokenCache($idToken);
+        }
+
+        // Détruire la session Laravel
         $request->session()->forget('keycloak_user');
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        $realm   = config('services.keycloak.realms');
-        $baseUrl = config('services.keycloak.base_url');
-        $redirectUri = urlencode(url('/'));
-
-        $logoutUrl = "{$baseUrl}/realms/{$realm}/protocol/openid-connect/logout"
-            . "?post_logout_redirect_uri={$redirectUri}"
-            . "&client_id=" . config('services.keycloak.client_id');
-
-        return redirect($logoutUrl);
+        // Rediriger directement vers la landing page
+        return redirect('/');
     }
 }

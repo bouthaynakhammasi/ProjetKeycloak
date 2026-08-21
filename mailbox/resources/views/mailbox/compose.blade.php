@@ -15,4 +15,26 @@
     </svg>
     <p class="text-sm">La fenêtre de composition s'ouvre automatiquement…</p>
 </div>
+
+@push('scripts')
+<script>
+    @if(isset($recipientEmail) && $recipientEmail !== '')
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('compose-recipient');
+            if (input) {
+                input.value = '{{ $recipientEmail }}';
+                input.readOnly = true; // Utiliser readonly au lieu de disabled
+                input.classList.add('bg-gray-50', 'cursor-not-allowed');
+            }
+
+            @if(isset($subject) && $subject !== '')
+                const subjectInput = document.getElementById('compose-subject');
+                if (subjectInput) {
+                    subjectInput.value = '{{ $subject }}';
+                }
+            @endif
+        });
+    @endif
+</script>
+@endpush
 @endsection

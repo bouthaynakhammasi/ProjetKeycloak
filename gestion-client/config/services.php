@@ -32,12 +32,17 @@ return [
     ],
 
     'keycloak' => [
-        'client_id' => env('KEYCLOAK_CLIENT_ID'),
-        'client_secret' => env('KEYCLOAK_CLIENT_SECRET'),
-        'redirect' => env('KEYCLOAK_REDIRECT_URI', env('APP_URL', 'http://localhost:8000').'/auth/callback'),
-        'base_url' => env('KEYCLOAK_BASE_URL', 'http://localhost:8080'),
-        'realms' => env('KEYCLOAK_REALM', 'CompanyRealm'),
-        'scopes' => explode(',', env('KEYCLOAK_SCOPES', 'openid,profile,email')),
+        'client_id'                => env('KEYCLOAK_CLIENT_ID'),
+        'client_secret'            => env('KEYCLOAK_CLIENT_SECRET'),
+        'redirect'                 => env('KEYCLOAK_REDIRECT_URI', env('APP_URL', 'http://localhost:8000').'/auth/callback'),
+        'base_url'                 => env('KEYCLOAK_BASE_URL', 'http://localhost:8080'),
+        'realms'                   => env('KEYCLOAK_REALM', 'CompanyRealm'),
+        'scopes'                   => explode(',', env('KEYCLOAK_SCOPES', 'openid,profile,email')),
+        // Client de service pour l'API Admin Keycloak
+        'admin_client_id'          => env('KEYCLOAK_ADMIN_CLIENT_ID', 'laravel-admin-client'),
+        'admin_client_secret'      => env('KEYCLOAK_ADMIN_CLIENT_SECRET', ''),
+        'admin_notification_email' => env('ADMIN_NOTIFICATION_EMAIL', 'admin@gestion-client.com'),
+        'admin_user_url'           => env('KEYCLOAK_ADMIN_USER_URL', 'https://keycloak.example.com/admin/realms/CompanyRealm/users/'),
     ],
 
 ];
