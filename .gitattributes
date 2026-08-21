@@ -1,0 +1,15 @@
+# Force PHP as main language for GitHub Linguist
+*.blade.php linguist-language=PHP
+*.php linguist-language=PHP
+
+# Ignore specific files from language detection
+.env* linguist-generated
+package-lock.json linguist-generated
+composer.lock linguist-generated
+*.xml linguist-generated
+*.yml linguist-generated
+*.yaml linguist-generated
+
+# Mark configuration files as data
+config/*.php linguist-language=PHP
+database/migrations/*.php linguist-language=PHP
